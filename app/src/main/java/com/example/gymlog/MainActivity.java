@@ -3,6 +3,7 @@ package com.example.gymlog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -31,6 +32,11 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "DAC_GYMLOG";
     private static final String MAIN_ACTIVITY_USER_ID = "com.example.gymlog.MAIN_ACTIVITY_LOGIN_USEID";
+    static final String SHARED_PREFERENCE_USERID_KEY = "com.example.gymlog.MAIN_ACTIVITY_SHARED_PREFERENCE_USERID_KEY";
+
+    static final String SHARED_PREFERENCE_USERID_VALUE = "com.example.gymlog.MAIN_ACTIVITY_SHARED_PREFERENCE_USERID_VALUE";
+
+    private static final int LOGGED_OUT = -1;
     private ActivityMainBinding binding;
 
     private GymLogRepository repository;
@@ -87,6 +93,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logout() {
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_USERID_KEY,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
+        sharedPrefEditor.putInt(SHARED_PREFERENCE_USERID_KEY, LOGGED_OUT);
+        sharedPrefEditor.apply();
+        getIntent().putExtra(MAIN_ACTIVITY_USER_ID, LOGGED_OUT);
+
         startActivity(LoginActivity.loginIntentFactory(getApplicationContext()));
     }
 
@@ -97,12 +110,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         
         loginUser();
-        invalidateOptionsMenu();
-        
+
         if (loggedInUserId == -1) {
             Intent intent = LoginActivity.loginIntentFactory(getApplicationContext());
             startActivity(intent);
         }
+        invalidateOptionsMenu();
 
         repository = GymLogRepository.getRepository(getApplication());
 
@@ -126,8 +139,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loginUser() {
-        user = new User("Drew", "password");
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_USERID_KEY,
+                Context.MODE_PRIVATE);
+        loggedInUserId = sharedPreferences.getInt(SHARED_PREFERENCE_USERID_VALUE, LOGGED_OUT);
+        if (loggedInUserId != LOGGED_OUT) {
+            return;
+        }
         loggedInUserId = getIntent().getIntExtra(MAIN_ACTIVITY_USER_ID, -1);
+        if (loggedInUserId == LOGGED_OUT) {
+
+        }
     }
 
     static Intent mainActivityIntentFactory(Context context, int userId) {

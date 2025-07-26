@@ -11,4 +11,5 @@
     <string name="welcome_to_the_gymlog_nplease_sign_in">Welcome to the GymLog\nPlease sign in</string>
     <string name="username">Username</string>
     <string name="login">Login!</string>
+    <string name="password">password</string>
 </resources>

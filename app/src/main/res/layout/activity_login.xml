@@ -39,7 +39,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:hint="@string/username"
+        android:hint="@string/password"
         app:layout_constraintTop_toBottomOf="@+id/userNameLoginEditText"
         android:layout_margin="16dp"
         app:layout_constraintStart_toStartOf="parent"
