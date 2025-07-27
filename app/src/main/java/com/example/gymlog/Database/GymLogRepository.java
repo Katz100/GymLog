@@ -10,6 +10,7 @@ import com.example.gymlog.Database.entities.User;
 import com.example.gymlog.MainActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -80,5 +81,13 @@ public class GymLogRepository {
 
     public LiveData<User> getUserByUserName(String username) {
         return userDAO.getUserByUserName(username);
+    }
+
+    public LiveData<User> getUserByUserId(int userId) {
+        return userDAO.getUserByUserId(userId);
+    }
+
+    public LiveData<List<GymLog>> getAllLogsByUserId(int userId) {
+        return gymLogDAO.getAllLogsByUserId(userId);
     }
 }
