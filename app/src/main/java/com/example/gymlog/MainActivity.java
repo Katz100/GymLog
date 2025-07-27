@@ -21,11 +21,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Delete;
 
 import com.example.gymlog.Database.GymLogRepository;
 import com.example.gymlog.Database.entities.GymLog;
 import com.example.gymlog.Database.entities.User;
 import com.example.gymlog.databinding.ActivityMainBinding;
+import com.example.gymlog.viewHolders.GymLogAdapter;
+import com.example.gymlog.viewHolders.GymLogViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
     private GymLogRepository repository;
+    private GymLogViewModel gymLogViewModel;
 
     String mExercise = "";
     double mWeight = 0.0;
@@ -119,9 +126,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        repository = GymLogRepository.getRepository(getApplication());
 
+        gymLogViewModel = new ViewModelProvider(this).get(GymLogViewModel.class);
+
+
+        RecyclerView recyclerView = binding.logDisplayRecyclerView;
+        final GymLogAdapter gymLogAdapter = new GymLogAdapter(new GymLogAdapter.GymLogDiff());
+        recyclerView.setAdapter(gymLogAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        repository = GymLogRepository.getRepository(getApplication());
         loginUser(savedInstanceState);
+
+        gymLogViewModel.getAllLogsById(loggedInUserId).observe(this, gymLogs -> {
+            gymLogAdapter.submitList(gymLogs);
+        });
         // user not logged in, go to login screen
         if (loggedInUserId == -1) {
             Intent intent = LoginActivity.loginIntentFactory(getApplicationContext());
@@ -129,23 +148,23 @@ public class MainActivity extends AppCompatActivity {
         }
         updateSharedPreference();
 
-        binding.logDisplayTextView.setMovementMethod(new ScrollingMovementMethod());
+       // binding.logDisplayTextView.setMovementMethod(new ScrollingMovementMethod());
 //        updateDisplay();
         binding.logButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getInformationFromDisplay();
                 insertGymLogRecord();
-                updateDisplay();
+               // updateDisplay();
             }
         });
 
-        binding.exerciseInputEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateDisplay();
-            }
-        });
+//        binding.exerciseInputEditText.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//           //     updateDisplay();
+//            }
+//        });
     }
 
     private void loginUser(Bundle savedInstanceState) {
@@ -170,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
             this.user = user;
             if (this.user != null) {
                 invalidateOptionsMenu();
-                updateDisplay();
+             //   updateDisplay();
             }
         });
     }
@@ -196,17 +215,18 @@ public class MainActivity extends AppCompatActivity {
         repository.insertGymLog(log);
     }
 
+    @Deprecated
     private void updateDisplay() {
         LiveData<List<GymLog>> logObserver = repository.getAllLogsByUserId(user.getId());
         logObserver.observe(this, allLog -> {
             if (allLog.isEmpty()) {
-                binding.logDisplayTextView.setText(R.string.nothing_to_show_time_to_hit_the_gym);
+              //  binding.logDisplayTextView.setText(R.string.nothing_to_show_time_to_hit_the_gym);
             }
             StringBuilder sb = new StringBuilder();
             for (GymLog log: allLog) {
                 sb.append(log);
             }
-            binding.logDisplayTextView.setText(sb.toString());
+         //   binding.logDisplayTextView.setText(sb.toString());
         });
     }
 
